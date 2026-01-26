@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>My experiment</title>
+  <script src="https://unpkg.com/jspsych@8.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
+  <link href="https://unpkg.com/jspsych@8.0.0/css/jspsych.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body></body>
+<script>
+
+  /* initialize jsPsych */
+  var jsPsych = initJsPsych({
+    on_finish: function () {
+      jsPsych.data.displayData();
+    }
+  });
+
+  /* create timeline */
+  var timeline = [];
+
+  /* create memory list */
+  // create a list of all items to be tested during the memory procedure
+  // TO DO: how can we expand this list to encompass all items?
+  // TO DO: How can we randomize which of the state/ exemplar items are studied?
+  var memory_list = [
+    "stimuli/organized/STATE/USED/Sabacus1.jpg",
+    "stimuli/organized/STATE/USED/Sbabytoy1.JPG",
+    "stimuli/organized/STATE/USED/Sbagel1.JPG",
+    "stimuli/organized/EXEMPLAR/USED/Ebasket1.jpg",
+    "stimuli/organized/EXEMPLAR/USED/Ebell1.jpg",
+    "stimuli/organized/EXEMPLAR/USED/Ebicycle1.jpg"
+  ]
+  //shuffle
+  var memory_list_shuffled = jsPsych.randomization.shuffle(memory_list);
+  console.log(memory_list_shuffled)
+
+  /* create test stimulus list */
+  // create a list of images to use at test
+  // TO DO: how can we expand this list to encompass all items?
+  var test_list = [
+    {
+      item_1: "Sabacus1.jpg",
+      item_2: "Sabacus2.jpg",
+      test_type: "state",
+      // store the stimulus path here, relative to the index.html
+      path_to_image: "stimuli/organized/STATE/USED/"
+    },
+    {
+      item_1: "Sbabytoy1.JPG",
+      item_2: "Sbabytoy2.JPG",
+      test_type: "state",
+      path_to_image: "stimuli/organized/STATE/USED/"
+    },
+    {
+      item_1: "Sbagel1.JPG",
+      item_2: "Sbagel2.jpg",
+      test_type: "state",
+      path_to_image: "stimuli/organized/STATE/USED/"
+    },
+    {
+      item_1: "Ebasket1.jpg",
+      item_2: "Ebasket2.jpg",
+      test_type: "exemplar",
+      path_to_image: "stimuli/organized/EXEMPLAR/USED/"
+    },
+    {
+      item_1: "Ebell1.jpg",
+      item_2: "Ebell2.jpg",
+      test_type: "exemplar",
+      path_to_image: "stimuli/organized/EXEMPLAR/USED/"
+    },
+    {
+      item_1: "Ebicycle1.jpg",
+      item_2: "Ebicycle2.jpg",
+      test_type: "exemplar",
+      path_to_image: "stimuli/organized/EXEMPLAR/USED/"
+    }
+  ];
+  //shuffle
+  var test_list_shuffled = jsPsych.randomization.shuffle(test_list);
+  console.log(test_list_shuffled)
+
+  //cycle through memory list using a for loop
+  for (i = 0; i < memory_list_shuffled.length; i++) {
+
+    //select the current image item
+    var current_image = memory_list_shuffled[i];
+
+    //add fixation cross
+    var fixation = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<div style="font-size:60px;">+</div>',
+      choices: "NO_KEYS",
+      trial_duration: 1000,
+    };
+
+    timeline.push(fixation);
+
+    // here's how we can construct a simple image trial
+    // TO DO: add repeated trials
+    // what else do we need to add to the trial procedure? What other information should we store? How can we turn this into a complete experiment timeline?
+    var trial = {
+      type: jsPsychImageKeyboardResponse,
+      stimulus: current_image,
+      //make the space bar a response option
+      choices: [" "],
+      //the stimulus is shown for 3000 ms
+      trial_duration: 3000,
+      //response should not end trial so that we can keep the same consistent presentation timing
+      response_ends_trial: false,
+      data: {
+        trial_phase: "memory"
+      }
+    }
+    //push the trial to the timeline
+    timeline.push(trial);
+  }
+
+  //cycle through test list using a for loop
+  for (i = 0; i < test_list_shuffled.length; i++) {
+    //select the current item
+    var current_item = test_list_shuffled[i];
+    var image_1 = current_item["path_to_image"]+current_item["item_1"];
+    var image_2 = current_item["path_to_image"]+current_item["item_2"];
+
+    //TO DO: how can we randomize image positions? How can we ensure that the old/new items are correctly marked?
+    var test_trial = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "Which of these items did you see before?",
+      choices: ['<img src="'+image_1+'">', '<img src="'+image_2+'">'],
+      data: {
+        trial_phase: "test"
+      }
+    };
+    timeline.push(test_trial);
+
+  }
+
+  /* start the experiment */
+  jsPsych.run(timeline);
+
+</script>
+
+</html>
