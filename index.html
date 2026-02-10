@@ -184,7 +184,13 @@ timeline.push(participant_id_entry);
     return item.path_to_image + item.item_1;
   });
 
-  // (shuffling handled by randomize_order in timeline variables below)
+  // (shuffling now handled by randomize_order in timeline variables below)
+  //var memory_list_shuffled = jsPsych.randomization.shuffle(memory_list);
+  //console.log(memory_list_shuffled)
+  //FIXME: memory list naming needs to be updated if shuffling no longer happens directly on array
+  //just naming the array for now (similar for test_list below)
+  var memory_list_shuffled = memory_list;
+  var test_list_shuffled = test_list;
 
   //cycle through memory list using a for loop
   for (i = 0; i < memory_list_shuffled.length; i++) {
