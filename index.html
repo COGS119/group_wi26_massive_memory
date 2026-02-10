@@ -248,6 +248,38 @@ timeline.push(participant_id_entry);
 
   }
 
+
+   // a short survey to collect what ppt thought this experiment was about
+ var participant_task_guess_entry = {
+   type: jsPsychSurveyText,
+   questions: [{ prompt: "Please enter what you believe the experiment was about in 1 sentence.", name: "task_guess" }],
+   on_finish: function (data) {
+     console.log(data.response)
+     jsPsych.data.addProperties({
+       participant: data.response.task_guess
+     });
+   }
+ };
+
+timeline.push(participant_task_guess_entry);
+
+// a short survey to collect if ppt had technical issues
+ var technical_issues_question = {
+   type: jsPsychSurveyText,
+   questions: [{ prompt: "Did you have any technical issues?", name: "technical_issues_question" }],
+   on_finish: function (data) {
+     console.log(data.response)
+     jsPsych.data.addProperties({
+       participant: data.response.technical_issues_question
+     });
+   }
+ };
+
+timeline.push(technical_issues_question);
+
+
+
+
   /* start the experiment */
   jsPsych.run(timeline);
 
