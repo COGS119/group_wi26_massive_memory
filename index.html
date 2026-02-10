@@ -8,7 +8,8 @@
   <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
-   <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.1"></script>
   <link href="https://unpkg.com/jspsych@8.0.0/css/jspsych.css" rel="stylesheet" type="text/css" />
 </head>
 
@@ -24,6 +25,21 @@
 
   /* create timeline */
   var timeline = [];
+
+  /* fullscreen mode */
+  var enter_fullscreen = {
+  type: jsPsychFullscreen,
+  fullscreen_mode: true
+}
+timeline.push(enter_fullscreen);
+
+var trial_in_fullscreen = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: 'This trial will be in fullscreen mode. Do not use Safari to run.',
+  choices: ['Continue']
+}
+timeline.push(trial_in_fullscreen);
+
 /* Welcome message trial*/
 var instructions = {
   type: jsPsychHtmlKeyboardResponse,
@@ -34,8 +50,6 @@ var instructions = {
     <p>Press any key to begin.</p>
   `
 };
-
- //add the instructions trial to the timeline
  timeline.push(instructions);
 
 
