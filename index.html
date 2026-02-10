@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 
@@ -67,68 +66,125 @@ var instructions = {
 
 timeline.push(participant_id_entry);
 
+  /* item name arrays */
 
-  /* create memory list */
-  // create a list of all items to be tested during the memory procedure
-  // TO DO: how can we expand this list to encompass all items?
-  // TO DO: How can we randomize which of the state/ exemplar items are studied?
-  var memory_list = [
-    "stimuli/organized/STATE/USED/Sabacus1.jpg",
-    "stimuli/organized/STATE/USED/Sbabytoy1.JPG",
-    "stimuli/organized/STATE/USED/Sbagel1.JPG",
-    "stimuli/organized/EXEMPLAR/USED/Ebasket1.jpg",
-    "stimuli/organized/EXEMPLAR/USED/Ebell1.jpg",
-    "stimuli/organized/EXEMPLAR/USED/Ebicycle1.jpg"
-  ]
-  //shuffle
-  var memory_list_shuffled = jsPsych.randomization.shuffle(memory_list);
-  console.log(memory_list_shuffled)
-
-  /* create test stimulus list */
-  // create a list of images to use at test
-  // TO DO: how can we expand this list to encompass all items?
-  var test_list = [
-    {
-      item_1: "Sabacus1.jpg",
-      item_2: "Sabacus2.jpg",
-      test_type: "state",
-      // store the stimulus path here, relative to the index.html
-      path_to_image: "stimuli/organized/STATE/USED/"
-    },
-    {
-      item_1: "Sbabytoy1.JPG",
-      item_2: "Sbabytoy2.JPG",
-      test_type: "state",
-      path_to_image: "stimuli/organized/STATE/USED/"
-    },
-    {
-      item_1: "Sbagel1.JPG",
-      item_2: "Sbagel2.jpg",
-      test_type: "state",
-      path_to_image: "stimuli/organized/STATE/USED/"
-    },
-    {
-      item_1: "Ebasket1.jpg",
-      item_2: "Ebasket2.jpg",
-      test_type: "exemplar",
-      path_to_image: "stimuli/organized/EXEMPLAR/USED/"
-    },
-    {
-      item_1: "Ebell1.jpg",
-      item_2: "Ebell2.jpg",
-      test_type: "exemplar",
-      path_to_image: "stimuli/organized/EXEMPLAR/USED/"
-    },
-    {
-      item_1: "Ebicycle1.jpg",
-      item_2: "Ebicycle2.jpg",
-      test_type: "exemplar",
-      path_to_image: "stimuli/organized/EXEMPLAR/USED/"
-    }
+  // Exemplar item names — all use .jpg except "teapot" which uses .JPG
+  var exemplar_names = [
+    "basket", "bell", "bicycle", "bracelet", "bread", "cabinet", "calculator",
+    "camera", "car", "chisel", "chocolatebar", "cone", "dispenser", "fan",
+    "feather", "frame", "game", "globe", "goggles", "grapes", "hanger",
+    "headphones", "helmet", "holepunch", "horn", "icecream", "key", "ladder",
+    "meter", "microscope", "mitt", "money", "muffin", "muffler", "nozzle",
+    "pacifier", "peppers", "piano", "pizza", "pliers", "potatochips", "razor",
+    "remote", "sharpener", "soapdish", "soccerball", "spraybottle", "stapler",
+    "starfish", "string", "suitcase", "sunglasses", "teapot", "tongs", "toyplane",
+    "tractor", "train", "trophy", "turtle", "wheelchair"
   ];
-  //shuffle
-  var test_list_shuffled = jsPsych.randomization.shuffle(test_list);
-  console.log(test_list_shuffled)
+
+  // State items where BOTH files use .jpg
+  var state_jpg = [
+    "abacus", "applesgreenbasket", "belt", "box", "briefcase", "brushes",
+    "chinesefoodbox", "crayons", "die", "donut", "dresser", "drum", "dryer",
+    "eggs", "firetrucktoy", "flask", "giftbag", "giftbox", "grinder",
+    "hairbrush", "iron", "medicaltape", "mug", "napkins", "patiotable",
+    "peppers", "pestle", "picnicbasket", "polarbear", "pumpkinpie",
+    "racquet", "rhino", "scales", "seatbelt", "seats", "sweater",
+    "teacup", "tent", "tiger", "typewriter", "waffleiron", "yarn"
+  ];
+
+  // State items where BOTH files use .JPG
+  var state_JPG = [
+    "babytoy", "books", "bottles", "breadbox", "bureau", "coffeemaker",
+    "container", "cookies", "dishes", "juiceglass", "laptop", "phone",
+    "pie", "potpan", "scanner", "scissors"
+  ];
+
+  // 10 novel pairs for attention checks (n01-n10)
+  var novel_pairs = [
+    {num: "01", a: "ladybug", b: "coin"},
+    {num: "02", a: "axe", b: "safetypin"},
+    {num: "03", a: "camel", b: "bagel"},
+    {num: "04", a: "yarn", b: "bandaid"},
+    {num: "05", a: "barrel", b: "cactus"},
+    {num: "06", a: "cane", b: "lipstick"},
+    {num: "07", a: "potato", b: "swimmingpool"},
+    {num: "08", a: "oven", b: "paperclip"},
+    {num: "09", a: "penguin", b: "saddle"},
+    {num: "10", a: "windmill", b: "turkey"}
+  ];
+
+  /* build test_list from name arrays */
+  var test_list = [];
+
+  // Add exemplar pairs
+  exemplar_names.forEach(function(name) {
+    var ext = (name === "teapot") ? ".JPG" : ".jpg";
+    test_list.push({
+      item_1: "E" + name + "1" + ext,
+      item_2: "E" + name + "2" + ext,
+      test_type: "exemplar",
+      path_to_image: "stimuli/organized/EXEMPLAR/USED/"
+    });
+  });
+
+  // Add state pairs (.jpg extension)
+  state_jpg.forEach(function(name) {
+    test_list.push({
+      item_1: "S" + name + "1.jpg",
+      item_2: "S" + name + "2.jpg",
+      test_type: "state",
+      path_to_image: "stimuli/organized/STATE/USED/"
+    });
+  });
+
+  // Add state pairs (.JPG extension)
+  state_JPG.forEach(function(name) {
+    test_list.push({
+      item_1: "S" + name + "1.JPG",
+      item_2: "S" + name + "2.JPG",
+      test_type: "state",
+      path_to_image: "stimuli/organized/STATE/USED/"
+    });
+  });
+
+  // Add the 2 state pairs with mismatched extensions
+  test_list.push({
+    item_1: "Sbagel1.JPG", item_2: "Sbagel2.jpg",
+    test_type: "state", path_to_image: "stimuli/organized/STATE/USED/"
+  });
+  test_list.push({
+    item_1: "Smetronome1.jpg", item_2: "Smetronome2.JPG",
+    test_type: "state", path_to_image: "stimuli/organized/STATE/USED/"
+  });
+
+  // Add novel pairs
+  novel_pairs.forEach(function(pair) {
+    test_list.push({
+      item_1: "n" + pair.num + "a" + pair.a + ".jpg",
+      item_2: "n" + pair.num + "b" + pair.b + ".jpg",
+      test_type: "novel",
+      path_to_image: "stimuli/organized/Novel pairs (tested)/"
+    });
+  });
+
+  // Counterbalance: randomly swap item_1/item_2 for exactly half of all pairs
+  // repeat([true, false], N) creates N trues + N falses, shuffled
+  var swap_flags = jsPsych.randomization.repeat([true, false], Math.floor(test_list.length / 2));
+
+  test_list.forEach(function(pair, index) {
+    if (swap_flags[index]) {
+      var temp = pair.item_1;
+      pair.item_1 = pair.item_2;
+      pair.item_2 = temp;
+    }
+  });
+
+  /* build memory list from test list (study the item_1 from each pair) */
+  var memory_list = test_list.map(function(item) {
+    return item.path_to_image + item.item_1;
+  });
+
+  // (shuffling handled by randomize_order in timeline variables below)
 
   //cycle through memory list using a for loop
   for (i = 0; i < memory_list_shuffled.length; i++) {
