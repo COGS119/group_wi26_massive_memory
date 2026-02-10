@@ -6,6 +6,7 @@
  <script src="https://unpkg.com/jspsych@8.0.0"></script>
  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
  <link href="https://unpkg.com/jspsych@8.0.0/css/jspsych.css" rel="stylesheet" type="text/css" />
+ <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
 </head>
 
 <body></body>
@@ -30,6 +31,23 @@ var instructions = {
 
  //add the instructions trial to the timeline
  timeline.push(instructions);
+
+
+ // create a short survey to collect a participant identifier
+ var participant_id_entry = {
+   type: jsPsychSurveyText,
+   questions: [{ prompt: "Please enter your participant ID (e.g. p1):", name: "participant_id" }],
+   on_finish: function (data) {
+     console.log(data.response)
+     jsPsych.data.addProperties({
+       participant: data.response.participant_id
+     });
+   }
+ };
+
+timeline.push(participant_id_entry);
+
+
 
  // start the experiment
  jsPsych.run(timeline);
