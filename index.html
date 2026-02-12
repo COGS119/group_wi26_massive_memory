@@ -263,6 +263,19 @@
   };
   timeline.push(participant_task_guess_entry);
 
+  var experiment_explanation = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <p>Thank you for participating!</p>
+      <p>This experiment is about how people remember objects in different conditions.</p>
+      <p>In the first phase, you studied a series of images. Some of those images were repeated to check if you were paying attention.</p>
+      <p>In the second phase, you were tested on your memory for those images by choosing which of two similar images you'd seen before.</p>
+      <p>We are interested in whether people can remember the nuances/specific details of objects in their long-term memory.</p>
+    `,
+    choices: ['Finish']
+  }
+  timeline.push(experiment_explanation);
+
   // a short survey to collect if ppt had technical issues
   var technical_issues_question = {
     type: jsPsychSurveyText,
