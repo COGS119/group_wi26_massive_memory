@@ -27,44 +27,42 @@
 
   /* fullscreen mode */
   var enter_fullscreen = {
-  type: jsPsychFullscreen,
-  fullscreen_mode: true
-}
-timeline.push(enter_fullscreen);
+    type: jsPsychFullscreen,
+    fullscreen_mode: true
+  }
+  timeline.push(enter_fullscreen);
 
-var trial_in_fullscreen = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: 'This trial will be in fullscreen mode. Do not use Safari to run.',
-  choices: ['Continue']
-}
-timeline.push(trial_in_fullscreen);
+  var trial_in_fullscreen = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: 'This trial will be in fullscreen mode. Do not use Safari to run.',
+    choices: ['Continue']
+  }
+  timeline.push(trial_in_fullscreen);
 
-/* Welcome message trial*/
-var instructions = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: `
-    <p>In this experiment, a series of objects will be displayed.</p>
-    <p>Try to memorize as much as possible about the objects.</p>
-    <p>If the image is a <strong> repeat</strong>, press the SPACEBAR.</p>
-    <p>Press any key to begin.</p>
-  `
-};
- timeline.push(instructions);
+  /* Welcome message trial */
+  var instructions = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <p>In this experiment, a series of objects will be displayed.</p>
+      <p>Try to memorize as much as possible about the objects.</p>
+      <p>If the image is a <strong> repeat</strong>, press the SPACEBAR.</p>
+      <p>Press any key to begin.</p>
+    `
+  };
+  timeline.push(instructions);
 
-
- // create a short survey to collect a participant identifier
- var participant_id_entry = {
-   type: jsPsychSurveyText,
-   questions: [{ prompt: "Please enter your participant ID (e.g. p1):", name: "participant_id" }],
-   on_finish: function (data) {
-     console.log(data.response)
-     jsPsych.data.addProperties({
-       participant: data.response.participant_id
-     });
-   }
- };
-
-timeline.push(participant_id_entry);
+  // create a short survey to collect a participant identifier
+  var participant_id_entry = {
+    type: jsPsychSurveyText,
+    questions: [{ prompt: "Please enter your participant ID (e.g. p1):", name: "participant_id" }],
+    on_finish: function (data) {
+      console.log(data.response)
+      jsPsych.data.addProperties({
+        participant: data.response.participant_id
+      });
+    }
+  };
+  timeline.push(participant_id_entry);
 
   /* item name arrays */
 
@@ -97,20 +95,6 @@ timeline.push(participant_id_entry);
     "babytoy", "books", "bottles", "breadbox", "bureau", "coffeemaker",
     "container", "cookies", "dishes", "juiceglass", "laptop", "phone",
     "pie", "potpan", "scanner", "scissors"
-  ];
-
-  // 10 novel pairs for attention checks (n01-n10)
-  var novel_pairs = [
-    {num: "01", a: "ladybug", b: "coin"},
-    {num: "02", a: "axe", b: "safetypin"},
-    {num: "03", a: "camel", b: "bagel"},
-    {num: "04", a: "yarn", b: "bandaid"},
-    {num: "05", a: "barrel", b: "cactus"},
-    {num: "06", a: "cane", b: "lipstick"},
-    {num: "07", a: "potato", b: "swimmingpool"},
-    {num: "08", a: "oven", b: "paperclip"},
-    {num: "09", a: "penguin", b: "saddle"},
-    {num: "10", a: "windmill", b: "turkey"}
   ];
 
   /* build test_list from name arrays */
@@ -157,16 +141,6 @@ timeline.push(participant_id_entry);
     test_type: "state", path_to_image: "stimuli/organized/STATE/USED/"
   });
 
-  // Add novel pairs
-  novel_pairs.forEach(function(pair) {
-    test_list.push({
-      item_1: "n" + pair.num + "a" + pair.a + ".jpg",
-      item_2: "n" + pair.num + "b" + pair.b + ".jpg",
-      test_type: "novel",
-      path_to_image: "stimuli/organized/Novel pairs (tested)/"
-    });
-  });
-
   // Counterbalance: randomly swap item_1/item_2 for exactly half of all pairs
   // repeat([true, false], N) creates N trues + N falses, shuffled
   var swap_flags = jsPsych.randomization.repeat([true, false], Math.floor(test_list.length / 2));
@@ -184,101 +158,136 @@ timeline.push(participant_id_entry);
     return item.path_to_image + item.item_1;
   });
 
-  // (shuffling now handled by randomize_order in timeline variables below)
-  //var memory_list_shuffled = jsPsych.randomization.shuffle(memory_list);
-  //console.log(memory_list_shuffled)
-  //FIXME: memory list naming needs to be updated if shuffling no longer happens directly on array
-  //just naming the array for now (similar for test_list below)
-  var memory_list_shuffled = memory_list;
-  var test_list_shuffled = test_list;
+  // Shuffle the memory list
+  var memory_list_shuffled = jsPsych.randomization.shuffle(memory_list);
 
-  //cycle through memory list using a for loop
-  for (i = 0; i < memory_list_shuffled.length; i++) {
+  // Attention check: pick 2 random images to repeat later in the study phase
+  // Build study_list with is_repeat flags
+  var study_list = memory_list_shuffled.map(function(path) {
+    return { path: path, is_repeat: false };
+  });
 
-    //select the current image item
-    var current_image = memory_list_shuffled[i];
+  // Pick 2 random indices to repeat, insert copies at least 5 trials later
+  var repeat_indices = jsPsych.randomization.sampleWithoutReplacement(
+    Array.from({length: memory_list_shuffled.length}, function(_, i) { return i; }), 2
+  );
 
-    //add fixation cross
+  // Sort descending so splice positions don't shift when inserting
+  repeat_indices.sort(function(a, b) { return b - a; });
+
+  repeat_indices.forEach(function(orig_idx) {
+    // insert the repeat at a random position at least 5 trials after the original
+    var min_pos = orig_idx + 5;
+    var max_pos = study_list.length;
+    if (min_pos > max_pos) min_pos = max_pos; // edge case: near end of list
+    var insert_pos = min_pos + Math.floor(Math.random() * (max_pos - min_pos + 1));
+    study_list.splice(insert_pos, 0, { path: memory_list_shuffled[orig_idx], is_repeat: true });
+  });
+
+  // Cycle through study_list for the learning phase
+  for (var i = 0; i < study_list.length; i++) {
+
+    var current_image = study_list[i].path;
+    var is_repeat = study_list[i].is_repeat;
+
+    // Fixation cross — first one is always black, subsequent ones show
+    // green (correct) or red (incorrect) based on previous trial response
     var fixation = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: '<div style="font-size:60px;">+</div>',
+      stimulus: function() {
+        // check if there was a previous memory trial
+        var prev_trials = jsPsych.data.get().filter({trial_phase: "memory"});
+        if (prev_trials.count() === 0) {
+          return '<div style="font-size:60px;">+</div>';
+        }
+        var last = prev_trials.last(1).values()[0];
+        var pressed_space = last.response !== null;
+        var was_repeat = last.is_repeat;
+        // correct if: pressed on repeat OR didn't press on non-repeat
+        var correct = (pressed_space && was_repeat) || (!pressed_space && !was_repeat);
+        var color = correct ? "green" : "red";
+        return '<div style="font-size:60px; color:' + color + ';">+</div>';
+      },
       choices: "NO_KEYS",
       trial_duration: 1000,
     };
-
     timeline.push(fixation);
 
-    // here's how we can construct a simple image trial
-    // TO DO: add repeated trials
-    // what else do we need to add to the trial procedure? What other information should we store? How can we turn this into a complete experiment timeline?
+    // Image trial
     var trial = {
       type: jsPsychImageKeyboardResponse,
       stimulus: current_image,
-      //make the space bar a response option
       choices: [" "],
-      //the stimulus is shown for 3000 ms
       trial_duration: 3000,
-      //response should not end trial so that we can keep the same consistent presentation timing
       response_ends_trial: false,
+      prompt: '<p>Press <strong>SPACEBAR</strong> if you have seen this image before</p>',
       data: {
-        trial_phase: "memory"
+        trial_phase: "memory",
+        is_repeat: is_repeat
       }
     }
-    //push the trial to the timeline
     timeline.push(trial);
   }
 
-  //cycle through test list using a for loop
-  for (i = 0; i < test_list_shuffled.length; i++) {
-    //select the current item
+  // Shuffle test list for test phase
+  var test_list_shuffled = jsPsych.randomization.shuffle(test_list);
+
+  // Cycle through test list using a for loop
+  for (var i = 0; i < test_list_shuffled.length; i++) {
     var current_item = test_list_shuffled[i];
     var image_1 = current_item["path_to_image"]+current_item["item_1"];
     var image_2 = current_item["path_to_image"]+current_item["item_2"];
 
-    //TO DO: how can we randomize image positions? How can we ensure that the old/new items are correctly marked?
     var test_trial = {
       type: jsPsychHtmlButtonResponse,
       stimulus: "Which of these items did you see before?",
       choices: ['<img src="'+image_1+'">', '<img src="'+image_2+'">'],
       data: {
-        trial_phase: "test"
+        trial_phase: "test",
+        test_type: current_item.test_type
       }
     };
     timeline.push(test_trial);
-
   }
 
+  // a short survey to collect what ppt thought this experiment was about
+  var participant_task_guess_entry = {
+    type: jsPsychSurveyText,
+    questions: [{ prompt: "Please enter what you believe the experiment was about in 1 sentence.", name: "task_guess" }],
+    on_finish: function (data) {
+      console.log(data.response)
+      jsPsych.data.addProperties({
+        participant: data.response.task_guess
+      });
+    }
+  };
+  timeline.push(participant_task_guess_entry);
 
-   // a short survey to collect what ppt thought this experiment was about
- var participant_task_guess_entry = {
-   type: jsPsychSurveyText,
-   questions: [{ prompt: "Please enter what you believe the experiment was about in 1 sentence.", name: "task_guess" }],
-   on_finish: function (data) {
-     console.log(data.response)
-     jsPsych.data.addProperties({
-       participant: data.response.task_guess
-     });
-   }
- };
+  var experiment_explanation = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <p>Thank you for participating!</p>
+      <p>This experiment is about how people remember objects in different conditions.</p>
+      <p>In the first phase, you studied a series of images. Some of those images were repeated to check if you were paying attention.</p>
+      <p>In the second phase, you were tested on your memory for those images by choosing which of two similar images you'd seen before.</p>
+      <p>We are interested in whether people can remember the nuances/specific details of objects in their long-term memory.</p>
+    `,
+    choices: ['Finish']
+  }
+  timeline.push(experiment_explanation);
 
-timeline.push(participant_task_guess_entry);
-
-// a short survey to collect if ppt had technical issues
- var technical_issues_question = {
-   type: jsPsychSurveyText,
-   questions: [{ prompt: "Did you have any technical issues?", name: "technical_issues_question" }],
-   on_finish: function (data) {
-     console.log(data.response)
-     jsPsych.data.addProperties({
-       participant: data.response.technical_issues_question
-     });
-   }
- };
-
-timeline.push(technical_issues_question);
-
-
-
+  // a short survey to collect if ppt had technical issues
+  var technical_issues_question = {
+    type: jsPsychSurveyText,
+    questions: [{ prompt: "Did you have any technical issues?", name: "technical_issues_question" }],
+    on_finish: function (data) {
+      console.log(data.response)
+      jsPsych.data.addProperties({
+        participant: data.response.technical_issues_question
+      });
+    }
+  };
+  timeline.push(technical_issues_question);
 
   /* start the experiment */
   jsPsych.run(timeline);
