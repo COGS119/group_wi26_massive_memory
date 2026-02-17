@@ -9,6 +9,8 @@
   <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.1"></script>
+  <!-- This is for data storage - please be sure to keep this script in all future updates to the code!! -->
+  <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
   <link href="https://unpkg.com/jspsych@8.0.0/css/jspsych.css" rel="stylesheet" type="text/css" />
 </head>
 
@@ -24,6 +26,21 @@
 
   /* create timeline */
   var timeline = [];
+
+  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
+  //create a unique filename by combining a random string and a millisecond counter (to avoid duplicates)
+  var random_id = jsPsych.randomization.randomID(10);
+  const date = new Date();
+  random_id = "p" + random_id.toString();
+  var file_id = random_id + "_" + date.getTime().toString();
+  const filename = `${file_id}.csv`;
+  //also store the random id for convenience
+  jsPsych.data.addProperties({
+    random_id: random_id,
+  });
+  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
+
+
 
   /* fullscreen mode */
   var enter_fullscreen = {
@@ -101,7 +118,7 @@
   var test_list = [];
 
   // Add exemplar pairs
-  exemplar_names.forEach(function(name) {
+  exemplar_names.forEach(function (name) {
     var ext = (name === "teapot") ? ".JPG" : ".jpg";
     test_list.push({
       item_1: "E" + name + "1" + ext,
@@ -112,7 +129,7 @@
   });
 
   // Add state pairs (.jpg extension)
-  state_jpg.forEach(function(name) {
+  state_jpg.forEach(function (name) {
     test_list.push({
       item_1: "S" + name + "1.jpg",
       item_2: "S" + name + "2.jpg",
@@ -122,7 +139,7 @@
   });
 
   // Add state pairs (.JPG extension)
-  state_JPG.forEach(function(name) {
+  state_JPG.forEach(function (name) {
     test_list.push({
       item_1: "S" + name + "1.JPG",
       item_2: "S" + name + "2.JPG",
@@ -145,7 +162,7 @@
   // repeat([true, false], N) creates N trues + N falses, shuffled
   var swap_flags = jsPsych.randomization.repeat([true, false], Math.floor(test_list.length / 2));
 
-  test_list.forEach(function(pair, index) {
+  test_list.forEach(function (pair, index) {
     if (swap_flags[index]) {
       var temp = pair.item_1;
       pair.item_1 = pair.item_2;
@@ -154,7 +171,7 @@
   });
 
   /* build memory list from test list (study the item_1 from each pair) */
-  var memory_list = test_list.map(function(item) {
+  var memory_list = test_list.map(function (item) {
     return item.path_to_image + item.item_1;
   });
 
@@ -163,19 +180,19 @@
 
   // Attention check: pick 2 random images to repeat later in the study phase
   // Build study_list with is_repeat flags
-  var study_list = memory_list_shuffled.map(function(path) {
+  var study_list = memory_list_shuffled.map(function (path) {
     return { path: path, is_repeat: false };
   });
 
   // Pick 2 random indices to repeat, insert copies at least 5 trials later
   var repeat_indices = jsPsych.randomization.sampleWithoutReplacement(
-    Array.from({length: memory_list_shuffled.length}, function(_, i) { return i; }), 2
+    Array.from({ length: memory_list_shuffled.length }, function (_, i) { return i; }), 2
   );
 
   // Sort descending so splice positions don't shift when inserting
-  repeat_indices.sort(function(a, b) { return b - a; });
+  repeat_indices.sort(function (a, b) { return b - a; });
 
-  repeat_indices.forEach(function(orig_idx) {
+  repeat_indices.forEach(function (orig_idx) {
     // insert the repeat at a random position at least 5 trials after the original
     var min_pos = orig_idx + 5;
     var max_pos = study_list.length;
@@ -194,9 +211,9 @@
     // green (correct) or red (incorrect) based on previous trial response
     var fixation = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: function() {
+      stimulus: function () {
         // check if there was a previous memory trial
-        var prev_trials = jsPsych.data.get().filter({trial_phase: "memory"});
+        var prev_trials = jsPsych.data.get().filter({ trial_phase: "memory" });
         if (prev_trials.count() === 0) {
           return '<div style="font-size:60px;">+</div>';
         }
@@ -235,13 +252,13 @@
   // Cycle through test list using a for loop
   for (var i = 0; i < test_list_shuffled.length; i++) {
     var current_item = test_list_shuffled[i];
-    var image_1 = current_item["path_to_image"]+current_item["item_1"];
-    var image_2 = current_item["path_to_image"]+current_item["item_2"];
+    var image_1 = current_item["path_to_image"] + current_item["item_1"];
+    var image_2 = current_item["path_to_image"] + current_item["item_2"];
 
     var test_trial = {
       type: jsPsychHtmlButtonResponse,
       stimulus: "Which of these items did you see before?",
-      choices: ['<img src="'+image_1+'">', '<img src="'+image_2+'">'],
+      choices: ['<img src="' + image_1 + '">', '<img src="' + image_2 + '">'],
       data: {
         trial_phase: "test",
         test_type: current_item.test_type
@@ -288,6 +305,18 @@
     }
   };
   timeline.push(technical_issues_question);
+
+  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
+  //this portion of the code ensures that the data gets sent to be stored on OSF
+  const save_data = {
+    type: jsPsychPipe,
+    action: "save",
+    experiment_id: "B0aqgL67QbG6",
+    filename: filename,
+    data_string: () => jsPsych.data.get().csv()
+  };
+  timeline.push(save_data);
+  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
 
   /* start the experiment */
   jsPsych.run(timeline);
