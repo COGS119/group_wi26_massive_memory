@@ -272,12 +272,6 @@
   var participant_task_guess_entry = {
     type: jsPsychSurveyText,
     questions: [{ prompt: "Please enter what you believe the experiment was about in 1 sentence.", name: "task_guess" }],
-    on_finish: function (data) {
-      console.log(data.response)
-      jsPsych.data.addProperties({
-        participant: data.response.task_guess
-      });
-    }
   };
   timeline.push(participant_task_guess_entry);
 
