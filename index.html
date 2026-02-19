@@ -222,12 +222,11 @@
         var pressed_space = last.response !== null;
         var was_repeat = last.is_repeat;
         // correct if: pressed on repeat OR didn't press on non-repeat
-        var correct = (pressed_space && was_repeat) || (!pressed_space && !was_repeat);
         var color;
         if (!pressed_space) {
           color = "black"; //if no response
           } else {
-            color = correct ? "green" : "red"; //if response, green = correct, red = incorrect
+            color = was_repeat ? "green" : "red"; //if response, green = correct, red = incorrect
           }
         return '<div style="font-size:60px; color:' + color + ';">+</div>';
       },
