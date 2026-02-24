@@ -85,6 +85,7 @@
   /* item name arrays */
 
   // Exemplar item names — all use .jpg except "teapot" which uses .JPG
+  //reduced to 20 items so experiment meets time limit
   var exemplar_names = [
     "basket", "bell", "bicycle", "bracelet", "bread", "cabinet", "calculator",
     "camera", "car", "chisel", "chocolatebar", "cone", "dispenser", "fan",
@@ -92,6 +93,7 @@
   ];
 
   // State items where BOTH files use .jpg
+  // reduced to 20 items so experiment meets time limit
   var state_jpg = [
     "abacus", "applesgreenbasket", "belt", "box", "briefcase", "brushes",
     "chinesefoodbox", "crayons", "die", "donut", "dresser", "drum", "dryer",
@@ -148,14 +150,41 @@
     });
   });
 
-  // Add the 2 state pairs with mismatched extensions
-  test_list.push({
-    item_1: "Sbagel1.JPG", item_2: "Sbagel2.jpg",
-    test_type: "state", path_to_image: "stimuli/organized/STATE/USED/"
-  });
-  test_list.push({
-    item_1: "Smetronome1.jpg", item_2: "Smetronome2.JPG",
-    test_type: "state", path_to_image: "stimuli/organized/STATE/USED/"
+  //removed mismatched-extension pairs - not needed with reduced item set
+
+  // 20 novel pairs — each pair has two completely different objects
+  // "a" image is studied, "b" image is the foil from a different category
+  var novel_pairs = [
+    { a: "n01aladybug.jpg",         b: "n01bcoin.jpg" },
+    { a: "n02aaxe.jpg",             b: "n02bsafetypin.jpg" },
+    { a: "n03acamel.jpg",           b: "n03bbagel.jpg" },
+    { a: "n04ayarn.jpg",            b: "n04bbandaid.jpg" },
+    { a: "n05abarrel.jpg",          b: "n05bcactus.jpg" },
+    { a: "n06acane.jpg",            b: "n06blipstick.jpg" },
+    { a: "n07apotato.jpg",          b: "n07bswimmingpool.jpg" },
+    { a: "n08aoven.jpg",            b: "n08bpaperclip.jpg" },
+    { a: "n09apenguin.jpg",         b: "n09bsaddle.jpg" },
+    { a: "n10awindmill.jpg",        b: "n10bturkey.jpg" },
+    { a: "n11abatteries.jpg",       b: "n11bsock.jpg" },
+    { a: "n12atelescope.jpg",       b: "n12bwatch.jpg" },
+    { a: "n13ablueberries.jpg",     b: "n13bdustpan.jpg" },
+    { a: "n14acigarette.jpg",       b: "n14bgolfball.jpg" },
+    { a: "n15aspiderweb.jpg",       b: "n15bfootball.jpg" },
+    { a: "n16abananas.jpg",         b: "n16bhammer.jpg" },
+    { a: "n17avendingmachine.jpg",  b: "n17bweddingdress.jpg" },
+    { a: "n18apretzel.jpg",         b: "n18bsnail.jpg" },
+    { a: "n19apickle.jpg",          b: "n19bhairbrush.jpg" },
+    { a: "n20acarseat.jpg",         b: "n20bshelf.jpg" }
+  ];
+
+  // add novel pairs to test_list
+  novel_pairs.forEach(function (pair) {
+    test_list.push({
+      item_1: pair.a,
+      item_2: pair.b,
+      test_type: "novel",
+      path_to_image: "stimuli/organized/Novel pairs (tested)/"
+    });
   });
 
   // Counterbalance: randomly swap item_1/item_2 for exactly half of all pairs
