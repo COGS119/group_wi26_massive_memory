@@ -8,6 +8,7 @@
   <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.1"></script>
   <!-- This is for data storage - please be sure to keep this script in all future updates to the code!! -->
   <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
@@ -21,11 +22,40 @@
   var jsPsych = initJsPsych({
     on_finish: function () {
       jsPsych.data.displayData();
+      /* data will be stored on their computer */
+      jsPsych.data.get().localSave('json', 'mydata.json');
     }
   });
 
   /* create timeline */
   var timeline = [];
+
+  /* demographics survey */
+  var demographics = {
+    type: jsPsychSurveyHtmlForm,
+    preamble: '<p>Please fill out the following demographic information:</p>',
+    html: `
+      <p>Age: 
+        <input name="age" type="number" min="0" max="120" required>
+      </p>
+      <p>Gender:
+        <select name="gender" required>
+          <option value="">Select an option</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+          <option value="prefer_not">Prefer not to say</option>
+        </select>
+      </p>
+      <p>Have you participated in a memory experiment before?
+        <select name="memory_experiment_experience" required>
+          <option value="">Select an option</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </p>`,
+    button_label: "Finish"
+  };
 
   //PLEASE KEEP FOR ALL FUTURE ITERATIONS
   //create a unique filename by combining a random string and a millisecond counter (to avoid duplicates)
@@ -339,6 +369,9 @@
     };
     timeline.push(test_trial);
   }
+
+  /* demographics survey appears at the end of the experiment */
+  timeline.push(demographics); 
 
   // a short survey to collect what ppt thought this experiment was about
   var participant_task_guess_entry = {
