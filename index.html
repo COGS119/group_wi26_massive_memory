@@ -185,9 +185,9 @@
     return { path: path, is_repeat: false };
   });
 
-  // Pick 2 random indices to repeat, insert copies at least 5 trials later
+  // Pick 5 random indices to repeat, insert copies at least 5 trials later
   var repeat_indices = jsPsych.randomization.sampleWithoutReplacement(
-    Array.from({ length: memory_list_shuffled.length }, function (_, i) { return i; }), 2
+    Array.from({ length: memory_list_shuffled.length }, function (_, i) { return i; }), 5
   );
 
   // Sort descending so splice positions don't shift when inserting
@@ -232,6 +232,8 @@
       },
       choices: "NO_KEYS",
       trial_duration: 1000,
+      // show prompt during fixation too
+      prompt: '<p>Press <strong>SPACEBAR</strong> if you have seen this image before</p>'
     };
     timeline.push(fixation);
 
@@ -245,11 +247,27 @@
       prompt: '<p>Press <strong>SPACEBAR</strong> if you have seen this image before</p>',
       data: {
         trial_phase: "memory",
-        is_repeat: is_repeat
+        is_repeat: is_repeat,
+        // get condition from path
+        test_type: current_image.includes("EXEMPLAR") ? "exemplar" :
+                   current_image.includes("STATE") ? "state" : "novel"
+      },
+      // check if response was correct
+      on_finish: function (data) {
+        var pressed_space = data.response !== null;
+        data.correct = (data.is_repeat === pressed_space);
       }
     }
     timeline.push(trial);
   }
+
+  // break between study and test
+  var break_screen = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<p>You have completed the study phase.</p><p>Take a short break. Press the button below when you are ready to continue.</p>',
+    choices: ['Continue to test phase']
+  };
+  timeline.push(break_screen);
   // TEST PHASE: instructions
   var test_instructions = {
     type: jsPsychHtmlKeyboardResponse,
