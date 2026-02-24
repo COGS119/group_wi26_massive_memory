@@ -250,6 +250,12 @@
     }
     timeline.push(trial);
   }
+  // TEST PHASE: instructions
+  var test_instructions = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '<p>You will now be shown pairs of images.</p><p>Select the image you remember seeing during the study phase.</p><p>Focus on accuracy, not speed.</p><p>Press any key to begin.</p>'
+  };
+  timeline.push(test_instructions);
 
   // Shuffle test list for test phase
   var test_list_shuffled = jsPsych.randomization.shuffle(test_list);
