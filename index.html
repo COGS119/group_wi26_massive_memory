@@ -260,19 +260,35 @@
   // Shuffle test list for test phase
   var test_list_shuffled = jsPsych.randomization.shuffle(test_list);
 
-  // Cycle through test list using a for loop
+ //Test loop
   for (var i = 0; i < test_list_shuffled.length; i++) {
     var current_item = test_list_shuffled[i];
-    var image_1 = current_item["path_to_image"] + current_item["item_1"];
-    var image_2 = current_item["path_to_image"] + current_item["item_2"];
+
+    var old_image = current_item["path_to_image"] + current_item["item_1"];
+    var new_image = current_item["path_to_image"] + current_item["item_2"];
+
+    // randomize L/R position
+    var show_old_on_left = jsPsych.randomization.shuffle([true, false])[0];
+    var left_image = show_old_on_left ? old_image : new_image;
+    var right_image = show_old_on_left ? new_image : old_image;
+
+    // correct_position: 0 = left button, 1 = right button
+    var correct_position = show_old_on_left ? 0 : 1;
 
     var test_trial = {
       type: jsPsychHtmlButtonResponse,
-      stimulus: "Which of these items did you see before?",
-      choices: ['<img src="' + image_1 + '">', '<img src="' + image_2 + '">'],
+      stimulus: "Which of these items did you see earlier?",
+      choices: ['<img src="' + left_image + '">', '<img src="' + right_image + '">'],
       data: {
         trial_phase: "test",
-        test_type: current_item.test_type
+        test_type: current_item.test_type,
+        old_image: old_image,
+        new_image: new_image,
+        correct_position: correct_position
+      },
+      // check if ppt picked correct image
+      on_finish: function (data) {
+        data.correct = (data.response == data.correct_position);
       }
     };
     timeline.push(test_trial);
