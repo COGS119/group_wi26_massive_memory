@@ -291,7 +291,8 @@
       choices: "NO_KEYS",
       trial_duration: 1000,
       // show prompt during fixation too
-      prompt: '<p>Press <strong>SPACEBAR</strong> if you have seen this image before</p>'
+      prompt: '<p style="position: absolute;top: 700px; left: 35%;">Press <strong>SPACEBAR</strong> if you have seen this image before</p>'
+
     };
     timeline.push(fixation);
 
@@ -302,7 +303,7 @@
       choices: [" "],
       trial_duration: 3000,
       response_ends_trial: false,
-      prompt: '<p>Press <strong>SPACEBAR</strong> if you have seen this image before</p>',
+      prompt: '<p style="position: absolute; top: 700px; left: 35%;">Press <strong>SPACEBAR</strong> if you have seen this image before</p>',
       data: {
         trial_phase: "memory",
         is_repeat: is_repeat,
