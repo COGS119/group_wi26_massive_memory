@@ -261,10 +261,18 @@
     study_list.splice(insert_pos, 0, { path: memory_list_shuffled[orig_idx], is_repeat: true });
   });
 
+  // thank you professor! this will build a list of images so that they preload too, i think the bug was that auto_preload misses images inside html strings
+  var test_images = [];
+  test_list.forEach(function(item) {
+    test_images.push(item.path_to_image + item.item_1);
+    test_images.push(item.path_to_image + item.item_2);
+  });
+
   // Preload all images before starting
   var preload = {
     type: jsPsychPreload,
-    auto_preload: true
+    auto_preload: true,
+    images: test_images
   };
   timeline.push(preload);
 
