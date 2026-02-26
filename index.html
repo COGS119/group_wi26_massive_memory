@@ -9,6 +9,7 @@
   <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-preload@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.1"></script>
   <!-- This is for data storage - please be sure to keep this script in all future updates to the code!! -->
   <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
@@ -89,7 +90,7 @@
   // create a short survey to collect a participant identifier
   var participant_id_entry = {
     type: jsPsychSurveyText,
-    questions: [{ prompt: "Please enter your participant ID (e.g. p1):", name: "participant_id" }],
+    questions: [{ prompt: "Please enter your first and last name:", name: "participant_id" }],
     on_finish: function (data) {
       console.log(data.response)
       jsPsych.data.addProperties({
@@ -260,6 +261,13 @@
     study_list.splice(insert_pos, 0, { path: memory_list_shuffled[orig_idx], is_repeat: true });
   });
 
+  // Preload all images before starting
+  var preload = {
+    type: jsPsychPreload,
+    auto_preload: true
+  };
+  timeline.push(preload);
+
   // Cycle through study_list for the learning phase
   for (var i = 0; i < study_list.length; i++) {
 
@@ -291,7 +299,7 @@
       choices: "NO_KEYS",
       trial_duration: 1000,
       // show prompt during fixation too
-      prompt: '<p style="position: absolute;top: 700px; left: 35%;">Press <strong>SPACEBAR</strong> if you have seen this image before</p>'
+      prompt: '<p style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);">Press <strong>SPACEBAR</strong> if you have seen this image before</p>'
 
     };
     timeline.push(fixation);
@@ -303,7 +311,7 @@
       choices: [" "],
       trial_duration: 3000,
       response_ends_trial: false,
-      prompt: '<p style="position: absolute; top: 700px; left: 35%;">Press <strong>SPACEBAR</strong> if you have seen this image before</p>',
+      prompt: '<p style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);">Press <strong>SPACEBAR</strong> if you have seen this image before</p>',
       data: {
         trial_phase: "memory",
         is_repeat: is_repeat,
