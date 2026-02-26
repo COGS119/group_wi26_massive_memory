@@ -90,7 +90,7 @@
   // create a short survey to collect a participant identifier
   var participant_id_entry = {
     type: jsPsychSurveyText,
-    questions: [{ prompt: "Please enter your first and last name:", name: "participant_id" }],
+    questions: [{ prompt: "Please enter your participant ID:", name: "participant_id" }],
     on_finish: function (data) {
       console.log(data.response)
       jsPsych.data.addProperties({
@@ -389,6 +389,31 @@
   };
   timeline.push(participant_task_guess_entry);
 
+    // a short survey to collect if ppt had technical issues
+  var technical_issues_question = {
+    type: jsPsychSurveyText,
+    questions: [{ prompt: "Did you have any technical issues?", name: "technical_issues_question" }],
+    on_finish: function (data) {
+      console.log(data.response)
+      jsPsych.data.addProperties({
+        technical_issues: data.response.technical_issues_question
+      });
+    }
+  };
+  timeline.push(technical_issues_question);
+
+    //PLEASE KEEP FOR ALL FUTURE ITERATIONS
+  //this portion of the code ensures that the data gets sent to be stored on OSF
+  const save_data = {
+    type: jsPsychPipe,
+    action: "save",
+    experiment_id: "B0aqgL67QbG6",
+    filename: filename,
+    data_string: () => jsPsych.data.get().csv()
+  };
+  timeline.push(save_data);
+  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
+
   var experiment_explanation = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `
@@ -402,30 +427,7 @@
   }
   timeline.push(experiment_explanation);
 
-  // a short survey to collect if ppt had technical issues
-  var technical_issues_question = {
-    type: jsPsychSurveyText,
-    questions: [{ prompt: "Did you have any technical issues?", name: "technical_issues_question" }],
-    on_finish: function (data) {
-      console.log(data.response)
-      jsPsych.data.addProperties({
-        technical_issues: data.response.technical_issues_question
-      });
-    }
-  };
-  timeline.push(technical_issues_question);
 
-  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
-  //this portion of the code ensures that the data gets sent to be stored on OSF
-  const save_data = {
-    type: jsPsychPipe,
-    action: "save",
-    experiment_id: "B0aqgL67QbG6",
-    filename: filename,
-    data_string: () => jsPsych.data.get().csv()
-  };
-  timeline.push(save_data);
-  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
 
   /* start the experiment */
   jsPsych.run(timeline);
